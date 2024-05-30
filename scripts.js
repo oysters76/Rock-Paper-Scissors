@@ -1,3 +1,9 @@
+const ROULETTE_SIZE    = 1000; 
+const ELEMENT_ROCK     = 0; 
+const ELEMENT_PAPER    = 1; 
+const ELEMENT_SCISSOR  = 2; 
+const ELEMENT_COUNT    = 3; 
+
 const game = document.querySelector('#game');
 const results = document.querySelector('#results');
 const gameChoice = document.querySelectorAll('.choice');
@@ -51,10 +57,46 @@ function wait(ms = 0) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+
+function generateRoulette(elementsPrecentageMap){
+  let roulette = []; 
+  let elemType = ELEMENT_ROCK; 
+  let precentage = elementsPrecentageMap[elemType]; 
+  let counter = 0; 
+  for(let i = 0; i < ROULETTE_SIZE; i++){
+    if (counter > precentage && elemType < elementsPrecentageMap.length){
+      elemType++; 
+      counter = 0; 
+      precentage = elementsPrecentageMap[elemType]; 
+    }
+    counter++;
+    roulette.push(elemType); 
+  }
+  return roulette; 
+}
+
+function generateRandomRoulette(){
+  let remaining = ROULETTE_SIZE; 
+  let pmap = []; 
+  for (let i = 0; i < ELEMENT_COUNT-1; i++){
+    let random_num = randomNum(0, remaining); 
+    remaining -= random_num;  
+    pmap.push(random_num); 
+  }
+  pmap.push(remaining);
+  return generateRoulette(pmap); 
+}
+
 // TODO: computer move function
 // generates num from 1 to 3. Returns rock/paper/scissors based on that
 function randomNum(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function pickFromRandomRoulette(){
+  let roulette = generateRandomRoulette(); 
+  let n = randomNum(0, ROULETTE_SIZE-1); 
+  return roulette[n]+1; 
 }
 
 function mirrorToLocalStorage() {
@@ -139,7 +181,7 @@ async function resultsTransition() {
 }
 
 function compMove() {
-  const compNum = randomNum(1, 3);
+  const compNum = pickFromRandomRoulette();
   // find computers choice based on random number
   switch (compNum) {
     case 1:
